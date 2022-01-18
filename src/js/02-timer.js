@@ -1,17 +1,17 @@
 import flatpickr from 'flatpickr';
 import 'flatpickr/dist/flatpickr.min.css';
-import { Notify } from 'notiflix';
+import Notiflix from 'notiflix';
 
 /* flatpickr(selector, options) */
 const refs = {
-  startBtn: document.querySelector('button[data-start]'),
+  startButton: document.querySelector('button[data-start]'),
   inputDateTimePicker: document.querySelector('#datetime-picker'),
-  selectDate: null,
   daysValue: document.querySelector('span.value[data-days]'),
   hoursValue: document.querySelector('span.value[data-hours]'),
   minutesValue: document.querySelector('span.value[data-minutes]'),
   secondsValue: document.querySelector('span.value[data-seconds]'),
 };
+let selectDate;
 
 const options = {
   enableTime: true,
@@ -19,21 +19,16 @@ const options = {
   defaultDate: new Date(),
   minuteIncrement: 1,
   onClose(selectedDates) {
-    refs.selectDate = selectedDates[0].getTime();
+    selectDate = selectedDates[0].getTime();
     const now = new Date();
 
-    if (refs.selectDate <= now.getTime()) {
-      refs.startBtn.setAttribute('disabled', '');
+    if (selectDate <= now.getTime()) {
+      refs.startButton.setAttribute('disabled', '');
 
-      Notify.failure('Please choose a future date.', {
-        clickToClose: true,
-        timeout: 2000,
-        position: 'center-center',
-        backOverlay: true,
-      });
+      Notiflix.Notify.failure('Please choose a future date.');
     } else {
-      if (refs.startBtn.hasAttribute('disabled')) {
-        refs.startBtn.removeAttribute('disabled');
+      if (refs.startButton.hasAttribute('disabled')) {
+        refs.startButton.removeAttribute('disabled');
       }
     }
   },
@@ -41,7 +36,7 @@ const options = {
 
 flatpickr(refs.inputDateTimePicker, options);
 
-refs.startBtn.addEventListener('click', () => {
+refs.startButton.addEventListener('click', () => {
   timer.start();
 });
 
@@ -79,7 +74,7 @@ const timer = {
       const currentTime = Date.now();
       this.isStarted = true;
 
-      const deltaTime = refs.selectDate - currentTime;
+      const deltaTime = selectDate - currentTime;
 
       const { days, hours, minutes, seconds } = convertMs(deltaTime);
 
@@ -90,12 +85,6 @@ const timer = {
 
       if (deltaTime < 1000) {
         this.stopTimer();
-
-        Notify.success('Timer is Over!', {
-          clickToClose: true,
-          timeout: 2000,
-          position: 'center-center',
-        });
       }
     }, 1000);
   },
